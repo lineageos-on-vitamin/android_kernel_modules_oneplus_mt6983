@@ -88,10 +88,10 @@ ccflags-y += -I$(CONNFEM_SRC)/include
 ccflags-y += -I$(WMT_SRC)/debug_utility
 ccflags-y += -I$(BTIF_SRC)/common/inc
 
-ccflags-y += -I$(src)/core/include
-ccflags-y += -I$(src)/connsys/connac_2_0
-ccflags-y += -I$(src)/../include
-ccflags-y += -I$(src)/../include/btif
+ccflags-y += -I$(TOP)/vendor/mediatek/kernel_modules/connectivity/bt/mt66xx/btif/core/include
+ccflags-y += -I$(TOP)/vendor/mediatek/kernel_modules/connectivity/bt/mt66xx/btif/connsys/connac_2_0
+ccflags-y += -I$(TOP)/vendor/mediatek/kernel_modules/connectivity/bt/mt66xx/btif/../include
+ccflags-y += -I$(TOP)/vendor/mediatek/kernel_modules/connectivity/bt/mt66xx/btif/../include/btif
 
 # ---------------------------------------------------
 # Objects List
@@ -110,3 +110,15 @@ HIF_OBJS := btmtk_btif_main.o btmtk_queue.o
 $(MODULE_NAME)-objs  += $(CORE_OBJS)
 $(MODULE_NAME)-objs  += $(HIF_OBJS)
 $(MODULE_NAME)-objs  += $(CHIP_OBJS)
+
+extra_symbols := $(abspath $(O)/../vendor/mediatek/kernel_modules/connectivity/conninfra/Module.symvers)
+extra_symbols += $(abspath $(O)/../vendor/mediatek/kernel_modules/connectivity/connfem/Module.symvers)
+
+all:
+	$(MAKE) -C $(KERNEL_SRC) M=$(M) modules $(KBUILD_OPTIONS) KBUILD_EXTRA_SYMBOLS="$(extra_symbols)"
+
+modules_install:
+	$(MAKE) M=$(M) -C $(KERNEL_SRC) modules_install
+
+clean:
+	$(MAKE) -C $(KERNEL_SRC) M=$(M) clean
