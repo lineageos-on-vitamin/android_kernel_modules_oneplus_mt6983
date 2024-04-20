@@ -26,12 +26,7 @@ define clean_kernel_modules
    $(MAKE) -C $(KERNEL_SRC) M=$(M)/Build/$(1) clean
 endef
 
-extra_symbols := $(abspath $(O)/../vendor/mediatek/kernel_modules/connectivity/common/Module.symvers)
 extra_symbols += $(abspath $(O)/../vendor/mediatek/kernel_modules/connectivity/conninfra/Module.symvers)
-
-ifneq ($(wildcard $(abspath $(O)/../vendor/mediatek/kernel_modules/connectivity/common/Module.symvers)) ,)
-    $(info [fm_drv:Makefile] wmt ready)
-endif
 ifneq ($(wildcard $(abspath $(O)/../vendor/mediatek/kernel_modules/connectivity/conninfra/Module.symvers)) ,)
     $(info [fm_drv:Makefile] conninfra ready)
 endif
