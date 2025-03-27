@@ -1241,6 +1241,10 @@ void p2pRoleFsmRunEventPreStartAP(IN struct ADAPTER *prAdapter,
 	u_int8_t bSkipCac = TRUE;
 	enum ENUM_BAND eBand;
 	uint8_t ucChannelNum;
+//#ifdef OPLUS_BUG_STABILITY
+//CONNECTIVITY.WIFI.BASIC, 2023/02/22/* /* Abort scan before StartAP  */
+	struct SCAN_INFO *prScanInfo;
+//#endif /* OPLUS_BUG_STABILITY */
 
 	prP2pStartAPMsg = (struct MSG_P2P_START_AP *) prMsgHdr;
 
@@ -1302,6 +1306,18 @@ void p2pRoleFsmRunEventPreStartAP(IN struct ADAPTER *prAdapter,
 			bSkipCac = TRUE;
 		}
 	}
+
+//#ifdef OPLUS_BUG_STABILITY
+//CONNECTIVITY.WIFI.BASIC, 2023/02/22/* /* Abort scan before StartAP  */
+	/* Abort scan before StartAP */
+	prScanInfo = &(prAdapter->rWifiVar.rScanInfo);
+	if (prScanInfo && (prScanInfo->eCurrentState == SCAN_STATE_SCANNING)) {
+		if (IS_BSS_INDEX_AIS(prAdapter,
+			prScanInfo->rScanParam.ucBssIndex))
+			aisFsmStateAbort_SCAN(prAdapter,
+			prScanInfo->rScanParam.ucBssIndex);
+	}
+//#endif /* OPLUS_BUG_STABILITY */
 
 	if (bSkipCac)
 		p2pRoleFsmRunEventStartAP(prAdapter, prMsgHdr);

@@ -1952,6 +1952,7 @@ void p2pFuncAcquireCh(IN struct ADAPTER *prAdapter,
 void p2pFuncSetDfsChannelAvailable(IN struct ADAPTER *prAdapter,
 		IN uint8_t ucChannel, IN uint8_t ucAvailable)
 {
+#if CFG_SUPPORT_SAP_DFS_CHANNEL
 	DBGLOG(P2P, INFO,
 		"p2pFuncSetDfsChannelAvailable: channel %d %s\n", ucChannel,
 		ucAvailable == 1 ? "available" : "unavailable");
@@ -1963,6 +1964,9 @@ void p2pFuncSetDfsChannelAvailable(IN struct ADAPTER *prAdapter,
 		0, /* sco */
 		0, /* center frequency */
 		0 /* eBand */);
+#else
+	DBGLOG(P2P, INFO, "SAP DFS channel not support");
+#endif
 }
 
 void p2pFuncStartRdd(IN struct ADAPTER *prAdapter, IN uint8_t ucBssIdx)
@@ -3163,6 +3167,7 @@ p2pFuncDisconnect(IN struct ADAPTER *prAdapter,
 
 #if (CFG_SUPPORT_DFS_MASTER == 1)
 			if (!aisGetConnectedBssInfo(prAdapter)) {
+#if CFG_SUPPORT_SAP_DFS_CHANNEL
 				/* restore DFS channels table */
 				wlanUpdateDfsChannelTable(prAdapter->prGlueInfo,
 					-1, /* p2p role index */
@@ -3171,6 +3176,7 @@ p2pFuncDisconnect(IN struct ADAPTER *prAdapter,
 					0, /* sco */
 					0, /* center frequency */
 					0 /* eBand */);
+#endif
 			}
 #endif
 		} else {

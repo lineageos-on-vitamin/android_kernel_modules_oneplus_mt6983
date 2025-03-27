@@ -1058,7 +1058,13 @@
 
 #define CFG_FIX_2_TX_PORT			0
 
+#ifndef OPLUS_WLAN_BUG_STABILITY
+//CONNECTIVITY.WIFI.NETWORK.INTERNET.367834, 2020/09/21,
+//Modify for disable arp vo setting
 #define CFG_CHANGE_CRITICAL_PACKET_PRIORITY	1
+#else  /* OPLUS_WLAN_BUG_STABILITY */
+#define CFG_CHANGE_CRITICAL_PACKET_PRIORITY     0
+#endif /* OPLUS_WLAN_BUG_STABILITY */
 
 /*------------------------------------------------------------------------------
  * Flags of bus error tolerance
@@ -1137,7 +1143,11 @@
 /* During a full2partial scan period, all online full scan requests would be
  * changed to partial scan. The unit of this value is second
  */
-#define CFG_SUPPORT_FULL2PARTIAL_SCAN      (1)
+//#ifndef OPLUS_BUG_STABILITY
+//#define CFG_SUPPORT_FULL2PARTIAL_SCAN      (1)
+//#else /* OPLUS_BUG_STABILITY */
+#define CFG_SUPPORT_FULL2PARTIAL_SCAN      (0)
+//#endif /* OPLUS_BUG_STABILITY */
 #define CFG_SCAN_FULL2PARTIAL_PERIOD       (60)
 
 /*------------------------------------------------------------------------------
@@ -1239,7 +1249,13 @@
 
 #define CFG_SUPPORT_DBDC	1
 #define CFG_SUPPORT_DBDC_NO_BLOCKING_OPMODE 1
-#define CFG_SUPPORT_SAP_DFS_CHANNEL 1
+
+//#ifndef OPLUS_BUG_STABILITY
+//CONNECTIVITY.WIFI.BASIC, 2023/02/20/* SAP/GO setup in dfs follow STA */
+//#define CFG_SUPPORT_SAP_DFS_CHANNEL 1
+//#else /* OPLUS_BUG_STABILITY */
+#define CFG_SUPPORT_SAP_DFS_CHANNEL 0
+//#endif /* OPLUS_BUG_STABILITY */
 
 /*------------------------------------------------------------------------------
  * Flags for Set IPv6 address to firmware
@@ -1525,7 +1541,13 @@
  *------------------------------------------------------------------------------
 */
 #ifndef CFG_SUPPORT_SMART_GEAR
-#define CFG_SUPPORT_SMART_GEAR 1
+//#ifdef OPLUS_BUG_STABILITY
+//CONNECTIVITY.WIFI.HARDWARE.POWER.360963, 2020/09/21
+//enable smart gear by default
+//#define CFG_SUPPORT_SMART_GEAR 1
+//#else * OPLUS_BUG_STABILITY */
+#define CFG_SUPPORT_SMART_GEAR 0
+//#endif /* OPLUS_BUG_STABILITY */
 #endif
 
 #define CFG_SUPPORT_WIFI_RNR  1

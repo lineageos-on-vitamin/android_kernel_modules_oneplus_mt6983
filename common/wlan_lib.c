@@ -90,6 +90,12 @@ const uint8_t aucPriorityParam2TC[] = {
 	TC3_INDEX
 };
 
+//#ifdef OPLUS_BUG_STABILITY
+//CONNECTIVITY.WIFI.ALPS07018366, 2022/05/17,
+//Add for lisa, disable roaming when in game mode.
+static unsigned long gGameModeDisableRoaming = 0;
+//#endif /* OPLUS_BUG_STABILITY */
+
 /*******************************************************************************
  *                             D A T A   T Y P E S
  *******************************************************************************
@@ -489,6 +495,14 @@ struct PARAM_CUSTOM_KEY_CFG_STRUCT g_rDefaulteSetting[] = {
 	*	"Operation:default 0"
 	*   }
 	*/
+#ifdef OPLUS_WLAN_BUG_STABILITY
+	//CONNECTIVITY.WIFI.CONNECTION.DISCONNECT,2002137, 2019/05/11,
+	//Add for add beacon to 10+10 before disconnect to avoid multiple disconnect
+	{"ScreenOnBeaconTimeoutCount", "10"},
+	//Add for check if any data at the last 2s,if has then not disconnect
+	{"BeaconTimoutFilterDurationMs","2000"},
+#endif /* OPLUS_WLAN_BUG_STABILITY */
+
 	{"AdapScan", "0x0", WLAN_CFG_DEFAULT},
 #if CFG_SUPPORT_IOT_AP_BLACKLIST
 	/*Fill Iot AP blacklist here*/
@@ -501,6 +515,27 @@ struct PARAM_CUSTOM_KEY_CFG_STRUCT g_rDefaulteSetting[] = {
 	{"DropPacketsIPV6Low", "0x1"},
 	{"Sta2gBw", "1"},
 #endif
+#ifdef OPLUS_WLAN_BUG_STABILITY
+	//CONNECTIVITY.WIFI.BASIC.POWER.917292, 2017/02/17,
+	//Add for: filter SSDP packets
+	{"DropPacketsIPV4Low", "0x12DE"},
+	{"DropPacketsIPV4High", "0x0"},
+
+	//Add for: filter IPV6 multicast packets
+	{"DropPacketsIPV6Low", "0x2"},
+	{"DropPacketsIPV6High", "0x0"},
+
+	//Add for: 2.4G mask invalid issue
+	{"2GTxMaskDPDOn", "1"},
+	{"2GTxPMinus1dbAtHighTemp", "1"},
+	{"TssiGroupBackupRestore", "1"},
+#endif /* OPLUS_WLAN_BUG_STABILITY */
+
+#ifdef OPLUS_WLAN_BUG_STABILITY
+	//CONNECTIVITY.WIFI.BMISS, 2020/03/27,
+	//Add for: adjust beacon miss report time as 3 seconds, 5*100ms is a round
+	{"LdtBTONullHwLifeTime", "5"},
+#endif /* OPLUS_WLAN_BUG_STABILITY */
 };
 
 /*******************************************************************************
@@ -8832,6 +8867,16 @@ uint32_t wlanCfgSet(IN struct ADAPTER *prAdapter,
 
 	DBGLOG(INIT, LOUD, "[%s]:[%s] OP:%d\n", pucKey, pucValue, u4Flags);
 
+	//#ifdef OPLUS_BUG_STABILITY
+	//CONNECTIVITY.WIFI.ALPS07018366, 2022/05/17,
+	//Add for lisa, disable roaming when in game mode.
+	if (kalStrnCmp(pucKey, "GameModeDisableRoaming", WLAN_CFG_KEY_LEN_MAX - 1) == 0) {
+		ASSERT(pucValue);
+		gGameModeDisableRoaming = simple_strtoul(pucValue, NULL, 16);
+		return WLAN_STATUS_SUCCESS;
+	}
+	//#endif /* OPLUS_BUG_STABILITY */
+
 	/* Find the exist */
 	ucExist = 0;
 	if (u4Flags == WLAN_CFG_REC) {
@@ -11913,6 +11958,12 @@ uint32_t wlanSetLowLatencyMode(
 	struct BSS_INFO *prAisBssInfo;
 	uint8_t ucBssIndex = AIS_DEFAULT_INDEX;
 
+	//#ifdef OPLUS_BUG_STABILITY
+	//CONNECTIVITY.WIFI.ALPS07018366, 2022/05/17,
+	//Add for lisa, disable roaming when in game mode.
+	struct ROAMING_INFO *prRoamingFsmInfo;
+	//#endif /* OPLUS_BUG_STABILITY */
+
 	DEBUGFUNC("wlanSetLowLatencyMode");
 
 	ASSERT(prAdapter);
@@ -12041,6 +12092,20 @@ uint32_t wlanSetLowLatencyMode(
 
 	DBGLOG(OID, INFO,
 		"LowLatency(gaming) fgEnMode=[%d]\n", fgEnMode);
+
+	//#ifdef OPLUS_BUG_STABILITY
+	//CONNECTIVITY.WIFI.ALPS07018366, 2022/05/17,
+	//Add for lisa, disable roaming when in game mode.
+	DBGLOG(OID, INFO, "gGameModeDisableRoaming = %lu\n", gGameModeDisableRoaming);
+	if (gGameModeDisableRoaming == 1) {
+		prRoamingFsmInfo = aisGetRoamingInfo(prAdapter, ucBssIndex);
+		if (fgEnMode){
+			prRoamingFsmInfo->fgIsEnableRoaming = FALSE;
+		} else {
+			prRoamingFsmInfo->fgIsEnableRoaming = TRUE;
+		}
+	}
+	//#endif /* OPLUS_BUG_STABILITY */
 
 	/* Force RTS to protect game packet */
 	wlanSetForceRTS(prAdapter, fgEnMode);

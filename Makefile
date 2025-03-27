@@ -84,6 +84,11 @@ ccflags-y += -Werror $(call cc-disable-warning, unused-but-set-variable)
 # because some of common part code is surrounded with this flag
 ccflags-y += -DLINUX
 
+#ifdef OPLUS_BUG_STABILITY
+#CONNECTIVITY.WIFI.CONNECTION.CONNECT, 20121/11/1, add for wlan common bug fix (replace OPLUS_BUG_STABILITY)
+ccflags-y += -DOPLUS_WLAN_BUG_STABILITY=1
+#endif  /* OPLUS_BUG_STABILITY */
+
 ifneq ($(filter MT6632,$(MTK_COMBO_CHIP)),)
 ccflags-y:=$(filter-out -UMT6632,$(ccflags-y))
 ccflags-y += -DMT6632
@@ -211,7 +216,10 @@ ccflags-y:=$(filter-out -USOC7_0,$(ccflags-y))
 ccflags-y += -DSOC7_0
 CONFIG_MTK_WIFI_CONNAC2X=y
 CONFIG_MTK_WIFI_11AX_SUPPORT=y
-CONFIG_MTK_WIFI_6G_SUPPORT=y
+#ifdef OPLUS_BUG_STABILITY
+#CONNECTIVITY.WIFI.CONNECTION.BASIC, 2021/11/23, Close 6GHz Support
+#CONFIG_MTK_WIFI_6G_SUPPORT=y
+#endif  /* OPLUS_BUG_STABILITY */
 CONFIG_MTK_WIFI_TWT_SUPPORT=y
 CONFIG_MTK_WIFI_TWT_STA_DIRECT_TEARDOWN=y
 CONFIG_NUM_OF_WFDMA_RX_RING=2
@@ -972,3 +980,8 @@ $(MODULE_NAME)-objs  += $(NAN_SEC_OBJS)
 ifneq ($(findstring UT_TEST_MODE,$(MTK_COMBO_CHIP)),)
 include $(src)/test/ut.make
 endif
+
+#ifdef OPLUS_FEATURE_WIFI_CAPCENTER_GC_AP_CONNECT
+#CONNECTIVITY.WIFI.P2P.3615099. Add for GC + AP support
+ccflags-y += -DCFG_P2P_CONNECT_ALL_BSS=1
+#endif /* OPLUS_FEATURE_WIFI_CAPCENTER_GC_AP_CONNECT */
